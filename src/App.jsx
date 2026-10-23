@@ -445,6 +445,22 @@ function Arrow({ dir = 'right' }) {
 
 function MediaFrame({ src, title, className = '' }) {
   const [failed, setFailed] = useState(false);
+  const [isZoomed, setIsZoomed] = useState(false);
+
+  useEffect(() => {
+    if (!isZoomed) return;
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape') setIsZoomed(false);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [isZoomed]);
+
   if (!src || failed) {
     return (
       <div className={`media-placeholder ${className}`}>
@@ -455,7 +471,56 @@ function MediaFrame({ src, title, className = '' }) {
       </div>
     );
   }
-  return <img className={`media-image ${className}`} src={src} alt={title} onError={() => setFailed(true)} />;
+
+  return (
+    <>
+      <div
+        className={`media-frame-clickable ${className}`}
+        onClick={() => setIsZoomed(true)}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setIsZoomed(true); }}
+        title="클릭하여 원본 크기로 크게 보기"
+      >
+        <img className="media-image" src={src} alt={title} onError={() => setFailed(true)} />
+        <div className="zoom-hint-badge">
+          <span>🔍 크게 보기</span>
+        </div>
+      </div>
+
+      {isZoomed && (
+        <div className="lightbox-backdrop" onClick={() => setIsZoomed(false)}>
+          <div className="lightbox-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="lightbox-header">
+              <strong>{title}</strong>
+              <div className="lightbox-actions">
+                <a
+                  href={src}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="lightbox-external-btn"
+                  title="새 탭에서 원본 해상도로 보기"
+                >
+                  새 탭에서 열기 ↗
+                </a>
+                <button
+                  type="button"
+                  className="lightbox-close-btn"
+                  onClick={() => setIsZoomed(false)}
+                  aria-label="닫기 (Esc)"
+                >
+                  ✕ 닫기
+                </button>
+              </div>
+            </div>
+            <div className="lightbox-body">
+              <img className="lightbox-image" src={src} alt={title} />
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
 }
 
 function MediaUpload({ title, path, accept = 'image/*' }) {
