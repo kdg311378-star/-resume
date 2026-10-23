@@ -607,10 +607,10 @@ function ProjectDetail({ project, onBack }) {
       <div className="detail-stack">{project.stack.map((item) => <span key={item}>{item}</span>)}</div>
       <div className="project-disclosure"><strong>성과 및 검증 범위</strong><p>{project.caveat}</p></div>
       <div className="demo-section">
-        <div>
+        <div className="demo-header">
           <div className="small-label">DEMO / WALKTHROUGH</div>
           <h3>시연 영상</h3>
-          <p>프로젝트의 실제 동작 화면과 시연 과정을 확인할 수 있습니다.</p>
+          <p>프로젝트의 실제 동작 화면과 검증된 시연 흐름입니다.</p>
         </div>
         <div className="demo-content">
           {youtubeId ? (
@@ -622,30 +622,22 @@ function ProjectDetail({ project, onBack }) {
                 allowFullScreen
               />
             </div>
-          ) : savedVideoUrl ? (
+          ) : project.demoUrl ? (
             <div className="video-embed">
               <video
-                src={savedVideoUrl}
+                src={project.demoUrl}
                 controls
                 playsInline
                 className="video-player"
-                style={{ width: '100%', maxHeight: '440px', borderRadius: '12px', background: '#0a0b0a' }}
               />
             </div>
           ) : (
-            <MediaUpload title="시연 영상 미리보기" path="" accept="video/*" />
+            <div className="media-placeholder">
+              <span className="placeholder-glyph">▶</span>
+              <strong>시연 영상 등록 예정</strong>
+              <small>영상 촬영 및 업로드 후 추가될 예정입니다.</small>
+            </div>
           )}
-          <form className="demo-form" onSubmit={submitVideo}>
-            <input
-              type="text"
-              value={videoUrl}
-              onChange={(e) => setVideoUrl(e.target.value)}
-              placeholder="YouTube URL 또는 비디오 경로"
-              aria-label="시연 영상 URL"
-            />
-            <button type="submit">링크 연결</button>
-          </form>
-          {videoError && <p className="form-error">{videoError}</p>}
         </div>
       </div>
     </div>
@@ -700,6 +692,7 @@ function AboutSection() {
         <div className="about-story">
           <p className="about-statement">“좋은 시스템은 기술을 붙이는 데서 끝나지 않고, 각 구성요소가 실제 흐름 안에서 함께 동작할 때 완성됩니다.”</p>
           <p>{PROFILE.introduction}</p>
+          
           <div className="value-cards">
             <article>
               <span>01 / VALUE</span>
@@ -717,7 +710,21 @@ function AboutSection() {
               <p>분리된 구성요소가 실제 요청과 응답에서 동작하도록 연결하고, 부족한 부분을 확인하며 개선합니다.</p>
             </article>
           </div>
+
+          <div className="experience-strip">
+            <div className="small-label">PROJECT TIMELINE & ROLES</div>
+            <div className="experience-list">
+              {PROJECTS.map((project) => (
+                <div className="experience-row" key={project.id}>
+                  <time>{project.dateLabel}</time>
+                  <strong>{project.name}</strong>
+                  <span>{project.role}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
+
         <aside className="about-aside">
           <div className="profile-card">
             <div className="profile-photo-wrap">
@@ -743,9 +750,23 @@ function AboutSection() {
                 </div>
                 <div>
                   <dt>자격</dt>
-                  <dd>
-                    <strong>SQL개발자(SQLD)</strong> (2026.03)<br />
-                    <span>정보처리기사(필기) · 빅데이터분석기사(필기)</span>
+                  <dd className="cert-list">
+                    <div className="cert-item">
+                      <strong>SQL개발자 (SQLD)</strong>
+                      <span>한국데이터산업진흥원 · 2026.03</span>
+                    </div>
+                    <div className="cert-item">
+                      <strong>정보처리기사 (필기)</strong>
+                      <span>한국산업인력공단 · 2026.09</span>
+                    </div>
+                    <div className="cert-item">
+                      <strong>빅데이터분석기사 (필기)</strong>
+                      <span>한국데이터산업진흥원 · 2026.09</span>
+                    </div>
+                    <div className="cert-item">
+                      <strong>한국사능력검정시험 (1급)</strong>
+                      <span>국사편찬위원회 · 2022.02</span>
+                    </div>
                   </dd>
                 </div>
                 <div>
@@ -758,16 +779,6 @@ function AboutSection() {
             </div>
           </div>
         </aside>
-      </div>
-      <div className="experience-strip">
-        <div className="small-label">PROJECT EXPERIENCE</div>
-        {PROJECTS.map((project) => (
-          <div className="experience-row" key={project.id}>
-            <time>{project.dateLabel}</time>
-            <strong>{project.name}</strong>
-            <span>{project.role}</span>
-          </div>
-        ))}
       </div>
     </div>
   );
